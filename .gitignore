@@ -1,0 +1,38 @@
+# Prerequisites
+*.py[cod]
+*$py.class
+__pycache__/
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# Node / React
+node_modules/
+dist/
+dist-ssr/
+*.local
+.eslintcache
+
+# Databases
+*.sqlite3
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project Specific
+backend/media/baselines/*.tgz
+backend/baseline_*.tgz
+*.tgz
+*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Celery
+celerybeat-schedule
