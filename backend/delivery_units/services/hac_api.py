@@ -4,7 +4,7 @@ import re
 from .config import HAC_API_URL, HAC_USER, HAC_PASS
 
 def get_all_rise_systems():
-    domain_filter = "rise\.sap\.schwarz"
+    domain_filter = r"rise\.sap\.schwarz"
     # Note: HAC_API_URL already ends with / if defined in .env
     params = {
         'domain__iregex': domain_filter,

@@ -1,0 +1,34 @@
+<div id="exportStatus" 
+     {% if task.status == 'PENDING' or task.status == 'RUNNING' %}
+     hx-get="{% url 'du_automation:task_status' task.id %}" 
+     hx-trigger="every 2s" 
+     hx-swap="outerHTML"
+     {% endif %}>
+    
+    <div class="mt-3 p-3 border rounded bg-white shadow-sm d-flex align-items-center gap-3">
+        {% if task.status == 'PENDING' or task.status == 'RUNNING' %}
+            <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+            <span class="text-primary fw-bold">⏳ Status: {{ task.status }}...</span>
+        {% elif task.status == 'SUCCESS' %}
+            <span class="text-success fw-bold">✅ Success! Exported: {{ task.filename }}</span>
+            <!-- Reveal the next section if this was an export success -->
+            {% if task.task_type == 'EXPORT' %}
+            <div hx-get="{% url 'du_automation:deploy_fragment' task.id %}" hx-trigger="load" hx-target="#deploy-section-container"></div>
+            {% endif %}
+        {% else %}
+            <span class="text-danger fw-bold">❌ Error: {{ task.error_message }}</span>
+        {% endif %}
+    </div>
+
+    <!-- If success and has diff, show it -->
+    {% if task.status == 'SUCCESS' and task.diff_text %}
+    <div class="mt-4 animate-in fade-in">
+        <h5 class="fw-bold mb-3 text-secondary">🔍 Code Changes (vs Baseline)</h5>
+        <div class="diff-container p-3" style="max-height: 400px; overflow-y: auto;">
+            {% autoescape off %}
+            {{ task.diff_text }}
+            {% endautoescape %}
+        </div>
+    </div>
+    {% endif %}
+</div>

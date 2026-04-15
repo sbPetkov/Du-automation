@@ -1,18 +1,14 @@
 import os
 from pathlib import Path
 import environ
-from datetime import timedelta
 
 # Initialize environ
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, []),
-    CORS_ALLOWED_ORIGINS=(list, []),
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Read .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
@@ -28,18 +24,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # Third party
+    'django_q', # The Task Queue
     'rest_framework',
-    'rest_framework_simplejwt',
-    'corsheaders',
-    'django_celery_results',
-    'django_celery_beat',
     
     # Local
+    'dashboard',
     'delivery_units',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # Must be at the top
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -49,29 +42,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS', default=['http://localhost:5173']) # Vite default
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-}
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-}
-
 ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'], # We will recreate these
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -93,6 +69,17 @@ DATABASES = {
     }
 }
 
+# --- Django Q2 (The "Redis-less" Queue) ---
+Q_CLUSTER = {
+    'name': 'du_portal_queue',
+    'workers': 4,
+    'recycle': 500,
+    'timeout': 3600, # 1 hour for long SAP jobs
+    'compress': True,
+    'orm': 'default', # Use our SQLite DB as the broker
+}
+
+# --- Standard Django Settings ---
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -108,16 +95,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Celery Configuration
-CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'django-cache'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-
-# HALM & HAC (Custom Settings)
+# HALM & HAC
 HAC_API_URL = env('HAC_API_URL')
 HAC_USER = env('HAC_USER')
 HAC_PASS = env('HAC_PASS')
@@ -125,3 +105,6 @@ HALM_USER = env('HALM_USER')
 HALM_PASS = env('HALM_PASS')
 HDBCLIENT_DIR = env('HDBCLIENT_DIR')
 BASELINES_DIR = os.path.join(BASE_DIR, 'media', 'baselines')
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'

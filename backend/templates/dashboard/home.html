@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row row-cols-1 row-cols-md-3 g-4 mt-2">
+    <!-- DU Automation Card -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-sap-primary py-3 text-center h5 text-white">Delivery Unit Automation</div>
+            <div class="card-body p-4 text-center">
+                <p class="text-muted mb-4">Export and import HANA Delivery Units across your landscape with automated diff checks.</p>
+                <a href="{% url 'du_automation:home' %}" class="btn btn-outline-primary btn-lg px-4">Open Service</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Refresh Card -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 opacity-75">
+            <div class="card-header bg-secondary py-3 text-center h5 text-white">Pre/Post System Refresh</div>
+            <div class="card-body p-4 text-center">
+                <p class="text-muted mb-4">Automate the tedious pre-refresh exports and post-refresh imports of system configurations.</p>
+                <button class="btn btn-outline-secondary btn-lg px-4" disabled>Coming Soon</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Services Card -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 opacity-75">
+            <div class="card-header bg-secondary py-3 text-center h5 text-white">User Services</div>
+            <div class="card-body p-4 text-center">
+                <p class="text-muted mb-4">Self-service password resets and user role requests in your HANA databases.</p>
+                <button class="btn btn-outline-secondary btn-lg px-4" disabled>Coming Soon</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

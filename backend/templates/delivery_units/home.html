@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .bg-sap-success { background-color: var(--sap-green) !important; color: white; }
+    .diff-container { border: 1px solid #d1d5db; border-radius: 6px; background-color: #fff; }
+    .diff-line { font-family: 'Courier New', Courier, monospace; font-size: 0.85em; white-space: pre-wrap; padding: 2px 10px; }
+    .diff-add { color: #1a7f37; background-color: #e6ffec; }
+    .diff-remove { color: #cf222e; background-color: #ffebe9; }
+    .diff-header { color: #0969da; background-color: #f6f8fa; margin-top: 10px; font-weight: bold; border-top: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db; padding: 5px 10px;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header bg-sap-primary text-white d-flex justify-content-between align-items-center">
+                <span>1. Source & Export</span>
+                <!-- HTMX Sync -->
+                <button class="btn btn-sm btn-light" 
+                        hx-post="{% url 'du_automation:sync_systems' %}" 
+                        hx-indicator="#sync-spinner"
+                        hx-on::after-request="if(event.detail.successful) location.reload()">
+                    <span id="sync-spinner" class="htmx-indicator spinner-border spinner-border-sm me-1"></span>
+                    🔄 Sync Systems Registry
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold text-muted">Select Source System (RISE)</label>
+                        <select id="sourceSystem" name="system_id" class="form-select form-select-lg">
+                            <option value="">-- Choose Source System --</option>
+                            {% for sys in systems %}
+                            <option value="{{ sys.id }}">{{ sys.name }}{% if sys.tenant %} ({{ sys.tenant }}){% endif %} - {{ sys.stage }} - {{ sys.hostname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-outline-secondary btn-lg w-100" 
+                                hx-get="{% url 'du_automation:list_dus' %}" 
+                                hx-include="#sourceSystem"
+                                hx-target="#duOutput"
+                                hx-on::before-request="document.getElementById('duOutput').style.display='block'">
+                            List Available DUs
+                        </button>
+                    </div>
+                </div>
+
+                <pre id="duOutput" class="bg-dark text-light p-3 rounded mb-4" style="display:none; max-height: 200px; overflow-y: auto;"></pre>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold text-muted">Delivery Unit Name</label>
+                        <input type="text" id="duName" name="du_name" class="form-control form-control-lg" value="HANA_SIT_AM_TEN_RISE">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-primary btn-lg w-100" 
+                                hx-post="{% url 'du_automation:start_export' %}"
+                                hx-include="#sourceSystem, #duName"
+                                hx-target="#exportStatus">
+                            Export & Compare
+                        </button>
+                    </div>
+                </div>
+
+                <div id="exportStatus" class="mt-3 fs-5"></div>
+            </div>
+        </div>
+
+        <div id="deploy-section-container">
+            <!-- This will be populated by HTMX after a successful export -->
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+<div class="card border-sap-green animate-in fade-in" id="deploy-section">
+    <div class="card-header bg-sap-green text-white font-bold">2. Target & Deploy</div>
+    <div class="card-body p-4">
+        <div class="alert alert-light border mb-4">
+            <strong>📦 Ready to deploy:</strong> <span class="badge bg-secondary ms-2">{{ task.filename }}</span>
+        </div>
+        
+        <form hx-post="{% url 'du_automation:start_import' %}" hx-target="#deployResults">
+            <input type="hidden" name="filename" value="{{ task.filename }}">
+            <input type="hidden" name="du_name" value="{{ task.du_name }}">
+            <input type="hidden" name="source_id" value="{{ task.source_system.id }}">
+
+            <div class="row border p-4 rounded bg-white mb-4 shadow-sm">
+                <div class="col-md-6 border-end pe-4">
+                    <label class="form-label fw-bold text-muted mb-3">Bulk Deploy by Stage:</label>
+                    <div class="d-flex flex-wrap gap-3">
+                        {% for stage, label in stages %}
+                        <div class="form-check">
+                            <input class="form-check-input stage-cb" type="checkbox" name="stages" id="chk{{ stage }}" value="{{ stage }}">
+                            <label class="form-check-label" for="chk{{ stage }}">{{ label }} ({{ stage }})</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6 ps-4">
+                    <label class="form-label fw-bold text-muted mb-3">OR Deploy to a Single System:</label>
+                    <select name="specific_id" class="form-select form-select-lg">
+                        <option value="">-- Choose specific system --</option>
+                        {% for sys in systems %}
+                        <option value="{{ sys.id }}">{{ sys.name }}{% if sys.tenant %} ({{ sys.tenant }}){% endif %} - {{ sys.stage }} - {{ sys.hostname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success btn-lg px-5">🚀 Deploy DU</button>
+            </div>
+        </form>
+        
+        <div id="deployResults" class="mt-4"></div>
+    </div>
+</div>

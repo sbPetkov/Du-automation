@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HANA Auth Service Portal{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- HTMX: The secret to "no-reload" without React/Node -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        :root {
+            --sap-blue: #0070f2;
+            --sap-header: #001832;
+            --sap-green: #107e3e;
+            --sap-bg: #f3f4f5;
+            --sap-text: #32363a;
+        }
+        body { background-color: var(--sap-bg); color: var(--sap-text); font-family: "72", "Segoe UI", sans-serif; }
+        .navbar-sap { background-color: var(--sap-header) !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card { border: none; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .bg-sap-primary { background-color: var(--sap-blue) !important; color: white; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <nav class="navbar navbar-dark navbar-sap mb-4 p-3">
+        <div class="container">
+            <a class="navbar-brand mb-0 h1 fs-4" href="/">
+                <span style="margin-right: 8px;">📦</span> HANA Auth Service Portal
+            </a>
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                    <span class="text-white me-3 opacity-75 small">Welcome, {{ user.username }}</span>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-light opacity-50">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-sm btn-outline-light">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
